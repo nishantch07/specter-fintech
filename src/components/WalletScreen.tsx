@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Expense } from "../types";
 import {
   Search,
@@ -22,7 +22,23 @@ interface WalletScreenProps {
 }
 export default function WalletScreen({ expenses, currencySymbol, onDeleteExpense }: WalletScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedMonthTab, setSelectedMonthTab] = useState<"August" | "July" | "June" | "May" | "All">("All");
+  const [selectedMonthTab, setSelectedMonthTab] = useState<string>("All");
+
+  const availableMonths = useMemo(() => {
+    const sortedDates = [...expenses]
+      .map(e => new Date(e.date))
+      .sort((a, b) => b.getTime() - a.getTime());
+
+    const uniqueMonths = Array.from(new Set(sortedDates.map(date =>
+      date.toLocaleString('en-US', { month: 'long' })
+    )));
+
+    // We reverse so it goes chronologically if desired, or keep descending. 
+    // They asked "months u give in ordr", descending is usually standard, but let's reverse to be older -> newer left to right if they meant chronological order.
+    // Actually, typical banking is latest first. Let's just output the set so we get ["All", "August", "July", "June", "May"] but dynamically!
+    return ["All", ...uniqueMonths];
+  }, [expenses]);
+
   const initialEquity = 1245920.00;
   const netFlow = expenses.reduce((sum, exp) => {
     if (exp.type === "expense") {
@@ -32,32 +48,26 @@ export default function WalletScreen({ expenses, currencySymbol, onDeleteExpense
     }
   }, 0);
   const totalEquity = initialEquity + netFlow;
+
   const getFilteredExpenses = () => {
     return expenses.filter(exp => {
       const matchesSearch = exp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         exp.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (exp.notes && exp.notes.toLowerCase().includes(searchQuery.toLowerCase()));
+
       if (selectedMonthTab === "All") return matchesSearch;
+
       const dateObj = new Date(exp.date);
-      const monthIndex = dateObj.getMonth(); 
-      const isAugust = monthIndex === 7 && dateObj.getFullYear() === 2024;
-      const isJuly = monthIndex === 6 && dateObj.getFullYear() === 2024;
-      const isJune = monthIndex === 5 && dateObj.getFullYear() === 2024;
-      const isMay = monthIndex === 4 && dateObj.getFullYear() === 2024;
-      if (selectedMonthTab === "August" && isAugust) return matchesSearch;
-      if (selectedMonthTab === "July" && isJuly) return matchesSearch;
-      if (selectedMonthTab === "June" && isJune) return matchesSearch;
-      if (selectedMonthTab === "May" && isMay) return matchesSearch;
-      const isJuly2026 = monthIndex === 6 && dateObj.getFullYear() === 2026;
-      if (selectedMonthTab === "August" && isJuly2026) return matchesSearch; 
-      return false;
+      const monthName = dateObj.toLocaleString('en-US', { month: 'long' });
+
+      return (monthName === selectedMonthTab) && matchesSearch;
     });
   };
   const filteredExpenses = getFilteredExpenses();
   const totalSpentInFiltered = filteredExpenses
     .filter(exp => exp.type === "expense")
     .reduce((sum, exp) => sum + exp.amount, 0);
-  const cashbackInFiltered = totalSpentInFiltered * 0.0256; 
+  const cashbackInFiltered = totalSpentInFiltered * 0.0256;
   const handleExportCSV = () => {
     const headers = "ID,Title,Category,Amount,Date,Type,Timestamp\n";
     const rows = filteredExpenses.map(e =>
@@ -122,75 +132,80 @@ export default function WalletScreen({ expenses, currencySymbol, onDeleteExpense
   };
   return (
     <main className="max-w-2xl mx-auto px-6 pb-32 pt-4 animate-fade-in select-none">
-      {}
-      <div className="bento-card p-8 mb-6 mt-4 relative overflow-hidden bg-white dark:bg-surface-container-lowest shadow-sm text-left">
-        <div className="flex flex-col gap-1 mb-8">
-          <span className="font-sans text-xs font-bold text-on-surface-variant uppercase tracking-widest opacity-60">Total Equity</span>
-          <div className="font-sans text-3xl md:text-4xl font-bold text-on-surface">
+      { }
+      <div className="w-full bg-[#121217] rounded-[24px] overflow-hidden mb-6 mt-4 shadow-sm relative border border-white/[0.05] flex flex-col pt-8 font-sans">
+        <div className="flex flex-col gap-1.5 px-8 relative z-10 w-full mb-10 text-left">
+          <span className="text-[10px] font-bold text-white/40 tracking-[0.15em] uppercase">Total Equity</span>
+          <div className="text-4xl font-bold text-white tracking-tight flex items-start">
             {currencySymbol}{totalEquity.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
-        {}
-        <div className="sparkline-container mt-4 mb-2 flex items-end h-20 w-full">
-          <svg className="w-full h-full overflow-visible" viewBox="0 0 100 40">
+
+        <div className="w-full h-24 relative z-10 flex items-end">
+          <svg viewBox="0 0 100 40" className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="purpleGradientWallet" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#7b61ff" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#7b61ff" stopOpacity="0" />
+              </linearGradient>
+            </defs>
             <path
-              d="M 0 35 Q 10 32, 20 38 T 40 30 T 60 15 T 80 25 T 100 20"
+              d="M 5,35 Q 20,40 30,30 T 55,10 T 80,25 T 95,8"
               fill="none"
-              stroke="#5e43cb"
+              stroke="#7b61ff"
               strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
             />
-            {}
             <path
-              d="M 0 35 Q 10 32, 20 38 T 40 30 T 60 15 T 80 25 T 100 20 L 100 40 L 0 40 Z"
-              fill="rgba(94, 67, 203, 0.04)"
+              d="M 5,35 Q 20,40 30,30 T 55,10 T 80,25 T 95,8 L 95,40 L 5,40 Z"
+              fill="url(#purpleGradientWallet)"
             />
           </svg>
         </div>
       </div>
-      {}
+      { }
       <div className="relative mb-6">
-        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-outline-variant w-5 h-5" />
+        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" strokeWidth={2.5} />
         <input
           id="search-transactions"
-          className="w-full h-14 pl-14 pr-6 bg-white dark:bg-surface-container-lowest border-none rounded-full font-sans text-base text-on-surface placeholder:text-outline shadow-sm focus:ring-2 focus:ring-primary/25 outline-none"
+          className="w-full h-14 pl-12 pr-6 bg-[#0f0e13] border border-white/[0.03] rounded-full font-sans text-sm text-white placeholder:text-white/30 focus:ring-1 focus:ring-[#7b61ff] outline-none transition-all shadow-sm"
           placeholder="Search for any transaction"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      {}
+      { }
       <div className="flex gap-3 overflow-x-auto pb-2 mb-6 custom-scrollbar">
-        {(["All", "August", "July", "June", "May"] as const).map((tab) => (
+        {availableMonths.map((tab) => (
           <button
             id={`month-tab-${tab}`}
             key={tab}
             onClick={() => setSelectedMonthTab(tab)}
-            className={`flex-shrink-0 px-6 py-2.5 rounded-full font-sans text-sm font-semibold shadow-sm transition-all duration-300 cursor-pointer border ${selectedMonthTab === tab
-                ? "bg-primary border-primary text-white"
-                : "bg-white dark:bg-surface-container-lowest border-black/[0.04] text-on-surface-variant hover:bg-surface-container-low"
+            className={`flex-shrink-0 px-6 py-2 rounded-full font-sans text-xs font-bold transition-all duration-200 cursor-pointer ${selectedMonthTab === tab
+              ? "bg-[#6f5cff] text-white"
+              : "bg-[#16151a] text-white/60 hover:bg-[#1e1c24] hover:text-white"
               }`}
           >
             {tab}
           </button>
         ))}
       </div>
-      {}
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bento-card p-6 flex flex-col justify-between h-32 text-left">
-          <span className="font-sans text-xs font-bold text-outline uppercase tracking-wider">Total spent</span>
-          <span className="font-sans text-2xl font-bold text-on-surface">
+        <div className="bg-[#121217] rounded-[24px] p-6 border border-white/[0.05] flex flex-col justify-between h-36 text-left shadow-sm">
+          <span className="font-sans text-[10px] font-bold text-white/40 tracking-[0.15em] uppercase">Total Spent</span>
+          <span className="font-sans text-2xl font-bold text-white tracking-tight">
             {currencySymbol}{totalSpentInFiltered.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
           </span>
         </div>
-        <div className="bento-card p-6 flex flex-col justify-between h-32 text-left">
-          <span className="font-sans text-xs font-bold text-outline uppercase tracking-wider">Cashback</span>
-          <span className="font-sans text-2xl font-bold text-tertiary">
+        <div className="bg-[#121217] rounded-[24px] p-6 border border-white/[0.05] flex flex-col justify-between h-36 text-left shadow-sm">
+          <span className="font-sans text-[10px] font-bold text-white/40 tracking-[0.15em] uppercase">Cashback</span>
+          <span className="font-sans text-2xl font-bold text-[#23b366] tracking-tight">
             {currencySymbol}{cashbackInFiltered.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
           </span>
         </div>
       </div>
-      {}
+      { }
       <div className="bento-card p-6 flex flex-col gap-6 text-left shadow-sm">
         <div className="flex items-center justify-between">
           <h2 className="font-sans font-bold text-xl text-on-surface">History</h2>

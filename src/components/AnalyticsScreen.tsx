@@ -18,6 +18,42 @@ interface AnalyticsScreenProps {
 }
 export default function AnalyticsScreen({ expenses, currencySymbol }: AnalyticsScreenProps) {
   const [showSavingsModal, setShowSavingsModal] = useState(false);
+  const [timeframe, setTimeframe] = useState<"Weekly" | "Monthly" | "Yearly">("Monthly");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const graphData = {
+    Weekly: {
+      path: "M -5,30 C 15,35 25,25 38,30 C 45,35 48,22 52,22 C 56,22 60,25 75,20 C 90,15 100,28 105,28",
+      peakX: 52,
+      peakY: 22,
+      value: "10,23,540"
+    },
+    Monthly: {
+      path: "M -5,30 C 15,30 25,36 38,28 C 45,22 47,9 52,9 C 57,9 59,32 75,32 C 90,32 100,28 105,28",
+      peakX: 52,
+      peakY: 9,
+      value: "12,13,838"
+    },
+    Yearly: {
+      path: "M -5,25 C 10,25 25,35 40,20 C 50,10 60,30 75,15 C 80,10 82,5 85,5 C 90,5 95,25 105,25",
+      peakX: 85,
+      peakY: 5,
+      value: "14,50,000"
+    }
+  };
+  const activeGraph = graphData[timeframe];
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const allRecurringData = [
+    { title: "AWS Cloud Services", icon: <Cloud className="w-5 h-5" />, color: "text-[#5e43cb]", date: "May 28", amount: "1,420.00", freq: "MONTHLY" },
+    { title: "Equinox Luxury Fitness", icon: <Dumbbell className="w-5 h-5" />, color: "text-[#0061a5]", date: "June 01", amount: "285.00", freq: "MONTHLY" },
+    { title: "Bloomberg Terminal", icon: <Sparkle className="w-5 h-5" />, color: "text-[#006b2e]", date: "June 15", amount: "2,000.00", freq: "ANNUAL PRO-RATA" }
+  ];
+
+  const displayedRecurring = allRecurringData.filter(item =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const [savingsList, setSavingsList] = useState([
     { id: "sav_1", title: "Unused Figma seat subscription", savings: 140, cancelled: false },
     { id: "sav_2", title: "Duplicate GitHub Copilot trial account", savings: 280, cancelled: false }
@@ -30,128 +66,154 @@ export default function AnalyticsScreen({ expenses, currencySymbol }: AnalyticsS
     .reduce((sum, item) => sum + item.savings, 0);
   return (
     <main className="max-w-4xl mx-auto px-6 py-6 pb-32 animate-fade-in select-none">
-      {}
-      <div className="w-full bg-white dark:bg-surface-container-lowest rounded-[32px] pt-8 px-8 overflow-hidden mb-6 shadow-sm border border-black/[0.04]">
-        <div className="text-left mb-6">
-          <span className="font-sans text-xs font-bold text-outline uppercase tracking-widest">Total Equity</span>
-          <div className="font-mono text-[42px] leading-none font-bold mt-2 text-on-surface tracking-tighter">
-            {currencySymbol}12,13,838.01
+      { }
+      <div className="w-full bg-[#050b14] rounded-[32px] overflow-hidden mb-8 shadow-2xl relative border border-white/5 flex flex-col pt-6 font-sans">
+        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-blue-500/20 blur-[60px] pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:linear-gradient(to_bottom,transparent,black)] pointer-events-none"></div>
+
+        <div className="flex justify-between items-center px-8 relative z-20 w-full mb-8">
+          <span className="text-xs text-white/50 tracking-wide">Data updated 2h ago</span>
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full px-4 py-1.5 transition-all text-xs text-white/80 cursor-pointer shadow-sm"
+            >
+              {timeframe} <span className="text-[9px] opacity-70">▼</span>
+            </button>
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-28 bg-[#0a101f] border border-white/10 rounded-xl shadow-xl overflow-hidden py-1 z-30">
+                {(["Weekly", "Monthly", "Yearly"] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => { setTimeframe(t); setShowDropdown(false); }}
+                    className="w-full text-left px-4 py-2 font-sans text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        {}
-        <div className="w-full h-32 relative -mr-8">
-          <svg viewBox="0 0 100 40" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+
+        <div className="w-full h-36 relative -mx-2 z-10 pointer-events-none">
+          <svg viewBox="0 0 100 40" className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
             <defs>
-              <linearGradient id="purpleGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#5e43cb" stopOpacity="0.1" />
-                <stop offset="100%" stopColor="#5e43cb" stopOpacity="0" />
-              </linearGradient>
+              <filter id="neon-glow-analytics" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
             </defs>
             <path
-              d="M 30,30 C 40,30 45,35 50,25 C 55,10 65,-5 75,10 C 85,25 90,30 95,20 C 98,15 100,10 100,10"
+              d={activeGraph.path}
               fill="none"
-              stroke="#5e43cb"
-              strokeWidth="2"
+              stroke="#60a5fa"
+              strokeWidth="0.8"
               vectorEffect="non-scaling-stroke"
+              filter="url(#neon-glow-analytics)"
+              style={{ transition: "d 1s cubic-bezier(0.4, 0, 0.2, 1)" }}
             />
-            <path
-              d="M 30,30 C 40,30 45,35 50,25 C 55,10 65,-5 75,10 C 85,25 90,30 95,20 C 98,15 100,10 100,10 L 100,40 L 30,40 Z"
-              fill="url(#purpleGradient)"
+            <circle
+              cx={activeGraph.peakX}
+              cy={activeGraph.peakY}
+              r="1.6"
+              fill="#bfdbfe"
+              stroke="#ffffff"
+              strokeWidth="0.5"
+              filter="url(#neon-glow-analytics)"
+              style={{ transition: "all 1s cubic-bezier(0.4, 0, 0.2, 1)" }}
             />
           </svg>
         </div>
+
+        <div className="text-center relative z-10 pb-12">
+          <p className="text-sm text-white/60 mb-2 font-medium tracking-wide">Total Equity Value</p>
+          <div className="text-5xl md:text-6xl font-semibold text-white tracking-tight flex justify-center items-start">
+            <span className="text-2xl mt-1.5 md:mt-2 mr-1 font-medium opacity-80">{currencySymbol}</span>
+            {activeGraph.value}
+          </div>
+          <p className="text-[10px] md:text-[11px] text-white/50 mt-4 font-medium flex items-center justify-center gap-1 uppercase tracking-wider">
+            Increase vs last month <span className="text-emerald-400 font-bold ml-1 text-sm leading-none">↗</span>
+          </p>
+        </div>
       </div>
-      {}
-      <div className="bg-white rounded-full px-6 py-4 flex items-center gap-3 shadow-sm border border-black/[0.04] mb-8">
-        <Search className="w-5 h-5 text-outline/60" strokeWidth={2.5} />
+      { }
+      <div className="relative mb-8">
+        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" strokeWidth={2.5} />
         <input
-          type="text"
+          id="search-transactions"
+          className="w-full h-14 pl-12 pr-6 bg-[#0f0e13] border border-white/[0.03] rounded-full font-sans text-sm text-white placeholder:text-white/30 focus:ring-1 focus:ring-[#7b61ff] outline-none transition-all shadow-sm"
           placeholder="Search for any transaction"
-          className="w-full bg-transparent border-none outline-none font-sans text-base text-on-surface placeholder-outline/70 font-medium"
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-        {}
-        <div className="md:col-span-12 bento-card p-6 border-t-4 border-[#005ac1] text-left shadow-sm">
+        { }
+        <div className="md:col-span-12 bg-[#121217] p-6 rounded-[24px] border border-white/[0.05] text-left shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="font-sans font-bold text-lg text-on-surface">Recurring Tracking</h2>
+            <h2 className="font-sans font-bold text-lg text-white">Recurring Tracking</h2>
             <button
               id="btn-view-calendar"
-              onClick={() => alert("Calendar scheduler view is synchronized with your Google Calendar.")}
-              className="text-primary font-sans text-xs font-bold tracking-wider uppercase hover:underline cursor-pointer flex items-center gap-1"
+              onClick={() => window.open("https://calendar.google.com", "_blank")}
+              className="text-[#7b61ff] font-sans text-xs font-bold tracking-wider uppercase hover:underline cursor-pointer flex items-center gap-1"
             >
               <Calendar className="w-4 h-4" /> VIEW ALL CALENDAR
             </button>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container transition-all group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#5e43cb] shadow-sm">
-                  <Cloud className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-sans font-bold text-base text-on-surface">AWS Cloud Services</div>
-                  <div className="font-sans text-xs font-semibold text-outline mt-1">Next billing: May 28</div>
-                </div>
+            {displayedRecurring.length === 0 ? (
+              <div className="py-8 text-center text-white/40 font-sans text-sm">
+                No recurring transactions match your search.
               </div>
-              <div className="text-right">
-                <div className="font-sans font-bold text-base text-on-surface">-{currencySymbol}1,420.00</div>
-                <div className="font-sans text-[10px] font-bold text-outline tracking-wider uppercase">MONTHLY</div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container transition-all group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#0061a5] shadow-sm">
-                  <Dumbbell className="w-5 h-5" />
+            ) : (
+              displayedRecurring.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-[#16151a] border border-white/[0.02] hover:bg-[#1a191f] transition-all group">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl bg-white flex items-center justify-center ${item.color} shadow-sm`}>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <div className="font-sans font-bold text-base text-white/90">{item.title}</div>
+                      <div className="font-sans text-xs font-semibold text-white/40 mt-1">Next billing: {item.date}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-sans font-bold text-base text-white/90">-{currencySymbol}{item.amount}</div>
+                    <div className="font-sans text-[10px] font-bold text-white/30 tracking-wider uppercase mt-1">{item.freq}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-sans font-bold text-base text-on-surface">Equinox Luxury Fitness</div>
-                  <div className="font-sans text-xs font-semibold text-outline mt-1">Next billing: June 01</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-sans font-bold text-base text-on-surface">-{currencySymbol}285.00</div>
-                <div className="font-sans text-[10px] font-bold text-outline tracking-wider uppercase">MONTHLY</div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low hover:bg-surface-container transition-all group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#006b2e] shadow-sm">
-                  <Sparkle className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-sans font-bold text-base text-on-surface">Bloomberg Terminal</div>
-                  <div className="font-sans text-xs font-semibold text-outline mt-1">Next billing: June 15</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="font-sans font-bold text-base text-on-surface">-{currencySymbol}2,000.00</div>
-                <div className="font-sans text-[10px] font-bold text-outline tracking-wider uppercase font-mono">ANNUAL PRO-RATA</div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
         </div>
-        {}
-        <div className="md:col-span-12 bento-card p-8 border-t-4 border-[#8e4e00] flex flex-col justify-center items-center text-center gap-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-            <Zap className="w-7 h-7 fill-orange-600 text-orange-600" />
+        { }
+        <div className="md:col-span-12 bg-[#121217] border border-white/[0.05] p-8 rounded-[24px] flex flex-col justify-center items-center text-center gap-4 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>
+          <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-2">
+            <Zap className="w-7 h-7 fill-orange-500 text-orange-500" />
           </div>
           <div>
-            <h3 className="font-sans font-bold text-lg text-on-surface">Optimization Ready</h3>
-            <p className="font-sans text-xs font-medium text-outline mt-1 max-w-sm mx-auto">
+            <h3 className="font-sans font-bold text-lg text-white">Optimization Ready</h3>
+            <p className="font-sans text-xs font-medium text-white/50 mt-2 max-w-sm mx-auto">
               We've found {currencySymbol}{activeSavingsTotal} in potential annual savings on unused recurring services.
             </p>
           </div>
           <button
             id="btn-review-savings"
             onClick={() => setShowSavingsModal(true)}
-            className="bg-on-background text-white px-8 py-3.5 rounded-full font-sans text-xs font-bold tracking-wider uppercase hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-sm"
+            className="mt-2 bg-white text-black px-8 py-3.5 rounded-full font-sans text-xs font-bold tracking-wider uppercase hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-sm"
           >
             REVIEW SAVINGS
           </button>
         </div>
       </div>
-      {}
+      { }
       {showSavingsModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fade-in">
           <div className="bg-white dark:bg-surface-container-lowest rounded-[24px] max-w-md w-full p-6 text-left relative animate-slide-up shadow-2xl">

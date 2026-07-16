@@ -225,9 +225,9 @@ export default function App() {
         profile={profile}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onNotificationClick={() => alert("Specter Notifications Inbox synced successfully.")}
+        onNotificationClick={() => window.location.reload()}
       />
-      {}
+      { }
       <div className="flex-1 w-full relative">
         {renderTabContent()}
       </div>

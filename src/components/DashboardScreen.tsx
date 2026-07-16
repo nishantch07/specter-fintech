@@ -60,38 +60,42 @@ export default function DashboardScreen({ expenses, setActiveTab, currencySymbol
     }
   };
   const handleExportPDF = () => {
-    alert("Simulated PDF Statement generation completed. Downloading file: Specter_May_2026_Statement.pdf");
+    window.print();
   };
   return (
     <main className="max-w-4xl mx-auto px-6 py-6 pb-32 animate-fade-in select-none">
-      {}
-      <section className="mb-6">
-        <div className="bg-white dark:bg-transparent rounded-[24px] p-8 border border-black/[0.04] dark:border-primary shadow-sm backdrop-blur-sm">
-          <p className="font-sans text-xs font-bold tracking-widest text-outline uppercase mb-2">Total Aggregated Outflow</p>
-          <h1 className="font-mono text-5xl md:text-6xl leading-none font-bold text-on-background tracking-tighter">
-            {currencySymbol}{totalOutflow.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </h1>
-          <div className="mt-6 flex items-center gap-2 text-error font-semibold">
-            <TrendingUp className="w-4 h-4" />
-            <span className="font-sans text-sm">12.4% vs last month</span>
+      { }
+      <section className="mb-8 w-full">
+        <div className="relative bg-[#0c1325]/70 backdrop-blur-xl rounded-[24px] p-6 md:p-8 shadow-sm overflow-hidden font-sans text-white border border-white/10">
+          <div className="absolute -right-8 -bottom-10 opacity-[0.1] transform -rotate-[24deg] w-[280px] pointer-events-none">
+            <div className="w-full h-1 border-b-[1.5px] border-white mb-4"></div>
+            <div className="w-full h-1 border-b-[1.5px] border-white mb-4"></div>
+            <div className="w-full h-1 border-b-[1.5px] border-white mb-4"></div>
+            <div className="w-full h-1 border-b-[1.5px] border-white"></div>
+          </div>
+
+          <div className="relative z-10 mb-10 w-full text-left">
+            <span className="text-white/80 text-[13px] md:text-sm font-medium tracking-wide">Your spendings</span>
+          </div>
+
+          <div className="relative z-10 w-full text-left">
+            <div className="flex-1 min-w-0 pr-4">
+              <span className="text-white text-[15px] md:text-lg font-medium tracking-wide block mb-1.5 opacity-90">Total outflow:</span>
+              <div className="text-4xl md:text-5xl font-bold tracking-tight truncate leading-none pb-1">
+                {currencySymbol}{totalOutflow.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
           </div>
         </div>
       </section>
-      {}
+      { }
       <section className="mb-6 flex gap-3 overflow-x-auto hide-scrollbar py-1">
         <button
-          id="action-scan"
+          id="action-scan-add"
           onClick={() => setActiveTab("add")}
           className="bg-surface-container-highest px-6 py-3.5 rounded-full flex items-center gap-2 font-sans text-xs font-bold uppercase text-on-background hover:bg-outline-variant/30 active:scale-95 transition-all whitespace-nowrap cursor-pointer shadow-sm"
         >
-          <QrCode className="w-4 h-4 text-primary" /> Scan
-        </button>
-        <button
-          id="action-add"
-          onClick={() => setActiveTab("add")}
-          className="bg-surface-container-highest px-6 py-3.5 rounded-full flex items-center gap-2 font-sans text-xs font-bold uppercase text-on-background hover:bg-outline-variant/30 active:scale-95 transition-all whitespace-nowrap cursor-pointer shadow-sm"
-        >
-          <Plus className="w-4 h-4 text-primary" /> Add
+          <QrCode className="w-4 h-4 text-primary" /> Scan & Add
         </button>
         <button
           id="action-pdf"
@@ -108,9 +112,9 @@ export default function DashboardScreen({ expenses, setActiveTab, currencySymbol
           <Settings2 className="w-4 h-4 text-primary" /> Preferences
         </button>
       </section>
-      {}
+      { }
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {}
+        { }
         <div
           onClick={() => setActiveTab("analytics")}
           className="bento-card bg-bento-purple rounded-[24px] p-6 shadow-[0px_10px_25px_rgba(168,85,247,0.15)] flex flex-col justify-between h-44 relative overflow-hidden cursor-pointer"
@@ -128,7 +132,7 @@ export default function DashboardScreen({ expenses, setActiveTab, currencySymbol
             </p>
           </div>
         </div>
-        {}
+        { }
         <div
           onClick={() => setActiveTab("analytics")}
           className="bento-card bg-bento-blue rounded-[24px] p-6 shadow-[0px_10px_25px_rgba(59,130,246,0.15)] flex flex-col justify-between h-44 relative overflow-hidden cursor-pointer"
@@ -146,7 +150,7 @@ export default function DashboardScreen({ expenses, setActiveTab, currencySymbol
             </p>
           </div>
         </div>
-        {}
+        { }
         <div
           onClick={() => setActiveTab("analytics")}
           className="bento-card bg-bento-green rounded-[24px] p-6 shadow-[0px_10px_25px_rgba(16,185,129,0.15)] flex flex-col justify-between h-44 relative overflow-hidden cursor-pointer"
@@ -164,7 +168,7 @@ export default function DashboardScreen({ expenses, setActiveTab, currencySymbol
             </p>
           </div>
         </div>
-        {}
+        { }
         <div
           onClick={() => setActiveTab("analytics")}
           className="bento-card bg-bento-orange rounded-[24px] p-6 shadow-[0px_10px_25px_rgba(249,115,22,0.15)] flex flex-col justify-between h-44 relative overflow-hidden cursor-pointer"
@@ -183,7 +187,7 @@ export default function DashboardScreen({ expenses, setActiveTab, currencySymbol
           </div>
         </div>
       </section>
-      {}
+      { }
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-sans font-bold text-xl text-on-background">Latest transactions</h2>
