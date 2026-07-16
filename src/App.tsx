@@ -29,7 +29,7 @@ export default function App() {
     twoFactorAuth: true,
     currency: "INR",
     region: "India",
-    theme: "light",
+    theme: "dark",
     notifications: {
       transactions: true,
       securityAlerts: true,
