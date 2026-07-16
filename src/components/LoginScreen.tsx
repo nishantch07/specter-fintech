@@ -36,8 +36,8 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }: LoginScr
     }, 1500);
   };
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-canvas-bg dark:bg-[#09090b] relative overflow-hidden animate-fade-in select-none">
-      {}
+    <div className="dark min-h-screen flex items-center justify-center p-6 bg-canvas-bg dark:bg-[#09090b] relative overflow-hidden animate-fade-in select-none">
+      { }
       <div className="hidden dark:block absolute top-[-5%] right-[10%] w-[600px] h-[600px] bg-white/[0.04] rounded-full blur-[100px] pointer-events-none"></div>
       <main className="w-full max-w-[400px] px-8 py-10 rounded-[32px] bg-white dark:bg-white/[0.02] dark:backdrop-blur-3xl border border-black/[0.05] dark:border-white/[0.06] shadow-xl relative z-10 transition-colors duration-300">
         <div className="flex flex-col items-center justify-center mb-8">
