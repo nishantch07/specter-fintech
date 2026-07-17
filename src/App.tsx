@@ -11,7 +11,7 @@ import SettingsScreen from "./components/SettingsScreen";
 import RegisterScreen from "./components/RegisterScreen";
 import { Expense, Profile, AppSettings, TabType, LoginState } from "./types";
 export default function App() {
-  const [loginState, setLoginState] = useState<LoginState>(() => localStorage.getItem("specter_email") ? "logged_in" : "logged_out");
+  const [loginState, setLoginState] = useState<LoginState>("logged_out");
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [profile, setProfile] = useState<Profile>({
     name: "Alexander Specter",

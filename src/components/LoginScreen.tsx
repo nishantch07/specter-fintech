@@ -16,11 +16,18 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }: LoginScr
       setError("Please fill in all fields.");
       return;
     }
-    const storedEmail = localStorage.getItem("specter_email") || "alexander@gmail.com";
-    const storedPassword = localStorage.getItem("specter_password") || "password123";
-    if (email !== storedEmail || password !== storedPassword) {
-      setError("Incorrect email or password.");
-      return;
+    const storedEmail = localStorage.getItem("specter_email");
+    const storedPassword = localStorage.getItem("specter_password");
+
+    if (storedEmail && storedPassword) {
+      if (email !== storedEmail || password !== storedPassword) {
+        setError("Incorrect email or password.");
+        return;
+      }
+    } else {
+      localStorage.setItem("specter_email", email);
+      localStorage.setItem("specter_password", password);
+      localStorage.setItem("specter_name", email.split('@')[0]);
     }
     setIsLoading(true);
     setTimeout(() => {
